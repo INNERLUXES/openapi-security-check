@@ -1,0 +1,48 @@
+{
+  "name": "openapi-security-check",
+  "version": "1.0.0",
+  "description": "Map an OpenAPI 3.0 or 3.1 description to the OWASP API Security Top 10 (2023) risks, from the description only: operations without security, API keys in the query string, plain http servers, object identifiers, admin-looking paths, mass assignment, missing paging and limits, URL inputs and inventory problems, each with its JSON pointer. Fetches nothing, no dependencies.",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "bin": {
+    "openapi-security-check": "bin/openapi-security-check.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "docs",
+    "examples",
+    "research",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.js\"",
+    "test:coverage": "node --test --experimental-test-coverage \"test/*.test.js\"",
+    "check": "node tools/check.mjs",
+    "example": "node tools/example.mjs"
+  },
+  "keywords": [
+    "openapi",
+    "owasp",
+    "api-security",
+    "security",
+    "swagger",
+    "linter",
+    "api",
+    "cli"
+  ],
+  "author": "INNERLUXES <info@innerluxes.dev>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/INNERLUXES/openapi-security-check.git"
+  },
+  "homepage": "https://innerluxes.dev/software-development/api-development"
+}
