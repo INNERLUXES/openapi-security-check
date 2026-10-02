@@ -1,0 +1,228 @@
+openapi: "3.0.3"
+info:
+  title: "Parcel Tracking API"
+  version: "1.5.0"
+  description: "The made-up Parcel Tracking API of examples/parcel-tracking.json with what the description showed corrected."
+servers:
+  - url: "https://api.parcel-example.test/v1"
+    description: "Production"
+security:
+  - OAuth2:
+      - "parcels:read"
+paths:
+  "/parcels":
+    get:
+      operationId: "listParcels"
+      summary: "List the parcels of the caller"
+      security:
+        - OAuth2:
+            - "parcels:list"
+      parameters:
+        - name: "limit"
+          in: "query"
+          schema:
+            type: "integer"
+            minimum: 1
+            maximum: 100
+            default: 25
+        - name: "cursor"
+          in: "query"
+          schema:
+            type: "string"
+            maxLength: 128
+      responses:
+        "200":
+          description: "The parcels"
+          content:
+            "application/json":
+              schema:
+                type: "array"
+                items:
+                  "$ref": "#/components/schemas/Parcel"
+        "429":
+          "$ref": "#/components/responses/TooManyRequests"
+    post:
+      operationId: "createParcel"
+      summary: "Register a parcel"
+      security:
+        - OAuth2:
+            - "parcels:write"
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              "$ref": "#/components/schemas/NewParcel"
+      responses:
+        "201":
+          description: "The parcel"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Parcel"
+        "429":
+          "$ref": "#/components/responses/TooManyRequests"
+  "/parcels/{parcelId}":
+    parameters:
+      - name: "parcelId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+          maxLength: 36
+    get:
+      operationId: "getParcel"
+      summary: "Read one parcel"
+      security:
+        - OAuth2:
+            - "parcels:read"
+      responses:
+        "200":
+          description: "The parcel"
+          content:
+            "application/json":
+              schema:
+                "$ref": "#/components/schemas/Parcel"
+        "429":
+          "$ref": "#/components/responses/TooManyRequests"
+    delete:
+      operationId: "deleteParcel"
+      summary: "Delete one parcel"
+      security:
+        - OAuth2:
+            - "parcels:delete"
+      responses:
+        "204":
+          description: "Deleted"
+        "429":
+          "$ref": "#/components/responses/TooManyRequests"
+  "/parcels/{parcelId}/events":
+    get:
+      operationId: "listParcelEvents"
+      summary: "List the tracking events of one parcel"
+      parameters:
+        - name: "parcelId"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            maxLength: 36
+        - name: "limit"
+          in: "query"
+          schema:
+            type: "integer"
+            minimum: 1
+            maximum: 100
+            default: 25
+        - name: "cursor"
+          in: "query"
+          schema:
+            type: "string"
+            maxLength: 128
+      responses:
+        "200":
+          description: "The events"
+          content:
+            "application/json":
+              schema:
+                type: "array"
+                items:
+                  type: "object"
+                  additionalProperties: false
+                  properties:
+                    at:
+                      type: "string"
+                      format: "date-time"
+                    place:
+                      type: "string"
+                      maxLength: 80
+        "429":
+          "$ref": "#/components/responses/TooManyRequests"
+  "/admin/parcels/export":
+    get:
+      operationId: "exportParcels"
+      summary: "Export every parcel as a file"
+      security:
+        - OAuth2:
+            - "admin:export"
+      responses:
+        "200":
+          description: "The file"
+          content:
+            "text/csv":
+              schema:
+                type: "string"
+                format: "binary"
+        "429":
+          "$ref": "#/components/responses/TooManyRequests"
+  "/health":
+    get:
+      operationId: "getHealth"
+      summary: "Liveness probe, public on purpose"
+      security: []
+      x-public: true
+      responses:
+        "200":
+          description: "Up"
+        "429":
+          "$ref": "#/components/responses/TooManyRequests"
+components:
+  securitySchemes:
+    OAuth2:
+      type: "oauth2"
+      flows:
+        clientCredentials:
+          tokenUrl: "https://auth.parcel-example.test/token"
+          scopes:
+            "parcels:list": "List the parcels of the caller"
+            "parcels:read": "Read one parcel and its events"
+            "parcels:write": "Register a parcel"
+            "parcels:delete": "Delete a parcel"
+            "admin:export": "Export every parcel"
+  responses:
+    TooManyRequests:
+      description: "Too many requests"
+      headers:
+        Retry-After:
+          description: "Seconds to wait"
+          schema:
+            type: "integer"
+  schemas:
+    NewParcel:
+      type: "object"
+      additionalProperties: false
+      required:
+        - "recipientName"
+      properties:
+        recipientName:
+          type: "string"
+          maxLength: 80
+        labels:
+          type: "array"
+          maxItems: 10
+          items:
+            type: "string"
+            maxLength: 32
+        notificationId:
+          type: "string"
+          maxLength: 36
+    Parcel:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          readOnly: true
+        status:
+          type: "string"
+          enum:
+            - "registered"
+            - "in_transit"
+            - "delivered"
+          readOnly: true
+        recipientName:
+          type: "string"
+        labels:
+          type: "array"
+          items:
+            type: "string"

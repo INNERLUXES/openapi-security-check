@@ -1,0 +1,543 @@
+{
+  "tool": "openapi-security-check",
+  "version": "1.0.0",
+  "edition": "OWASP API Security Top 10 2023",
+  "document": {
+    "path": "examples/parcel-tracking.json",
+    "openapi": "3.0.3",
+    "format": "json",
+    "title": "Parcel Tracking API",
+    "operations": 9,
+    "servers": 2,
+    "securitySchemes": 3
+  },
+  "publicOnPurpose": [
+    {
+      "operation": "GET /health",
+      "pointer": "#/paths/~1health/get"
+    }
+  ],
+  "categories": [
+    {
+      "n": 1,
+      "id": "API1:2023",
+      "name": "Broken Object Level Authorization",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/",
+      "result": "warn",
+      "detail": "object-id-review x4",
+      "findings": 4
+    },
+    {
+      "n": 2,
+      "id": "API2:2023",
+      "name": "Broken Authentication",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa2-broken-authentication/",
+      "result": "fail",
+      "detail": "apikey-in-query x1, security-disabled x1",
+      "findings": 2
+    },
+    {
+      "n": 3,
+      "id": "API3:2023",
+      "name": "Broken Object Property Level Authorization",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa3-broken-object-property-level-authorization/",
+      "result": "warn",
+      "detail": "mass-assignment-open x1, readonly-in-request x2",
+      "findings": 3
+    },
+    {
+      "n": 4,
+      "id": "API4:2023",
+      "name": "Unrestricted Resource Consumption",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/",
+      "result": "warn",
+      "detail": "list-without-paging x1, unbounded-array x1, no-rate-limit-response x5, unbounded-string x2",
+      "findings": 9
+    },
+    {
+      "n": 5,
+      "id": "API5:2023",
+      "name": "Broken Function Level Authorization",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa5-broken-function-level-authorization/",
+      "result": "warn",
+      "detail": "admin-same-scopes x1",
+      "findings": 1
+    },
+    {
+      "n": 6,
+      "id": "API6:2023",
+      "name": "Unrestricted Access to Sensitive Business Flows",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa6-unrestricted-access-to-sensitive-business-flows/",
+      "result": "not checked",
+      "detail": "whether a flow such as buying a ticket or posting a comment can be abused when it is automated is a question about the business, which a description of the interface does not answer",
+      "findings": 0
+    },
+    {
+      "n": 7,
+      "id": "API7:2023",
+      "name": "Server Side Request Forgery",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa7-server-side-request-forgery/",
+      "result": "warn",
+      "detail": "url-input x2",
+      "findings": 2
+    },
+    {
+      "n": 8,
+      "id": "API8:2023",
+      "name": "Security Misconfiguration",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa8-security-misconfiguration/",
+      "result": "fail",
+      "detail": "http-server x1, basic-over-http x1",
+      "findings": 2
+    },
+    {
+      "n": 9,
+      "id": "API9:2023",
+      "name": "Improper Inventory Management",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa9-improper-inventory-management/",
+      "result": "warn",
+      "detail": "multiple-versions x1, non-production-server x1, deprecated-operation x1",
+      "findings": 3
+    },
+    {
+      "n": 10,
+      "id": "API10:2023",
+      "name": "Unsafe Consumption of APIs",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xaa-unsafe-consumption-of-apis/",
+      "result": "not checked",
+      "detail": "how the API treats the data it receives from third-party services happens inside the server, and a description lists only the operations the API offers",
+      "findings": 0
+    }
+  ],
+  "findings": [
+    {
+      "id": "apikey-in-query",
+      "severity": "error",
+      "check": 2,
+      "category": {
+        "id": "API2:2023",
+        "name": "Broken Authentication"
+      },
+      "pointer": "#/components/securitySchemes/LegacyKey/in",
+      "line": 126,
+      "operation": null,
+      "subject": "LegacyKey",
+      "message": "The security scheme LegacyKey sends an API key in the query string (1 operation uses it). A key in a URL ends up in logs, browser history and referrer headers. OWASP lists \"Sends sensitive authentication details, such as auth tokens and passwords in the URL\" as a sign of a broken authentication",
+      "fix": "Send the key in a header (in: header) instead",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa2-broken-authentication/"
+    },
+    {
+      "id": "http-server",
+      "severity": "error",
+      "check": 8,
+      "category": {
+        "id": "API8:2023",
+        "name": "Security Misconfiguration"
+      },
+      "pointer": "#/servers/1/url",
+      "line": 10,
+      "operation": null,
+      "subject": "server",
+      "message": "The server at #/servers/1 uses plain http, so everything sent to it can be read and changed on the way. OWASP lists \"Transport Layer Security (TLS) is missing\" as a sign of a security misconfiguration",
+      "fix": "Use an https:// address, and keep http only for localhost",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa8-security-misconfiguration/"
+    },
+    {
+      "id": "basic-over-http",
+      "severity": "error",
+      "check": 8,
+      "category": {
+        "id": "API8:2023",
+        "name": "Security Misconfiguration"
+      },
+      "pointer": "#/components/securitySchemes/BasicAuth",
+      "line": 127,
+      "operation": "GET /track/{code}",
+      "subject": "BasicAuth",
+      "message": "The security scheme BasicAuth is HTTP basic authentication, and 1 operation that uses it is served from a plain http address (first: GET /track/{code}). Basic authentication sends the user name and password with every request, readable by anyone on the way",
+      "fix": "Serve these operations over https only, or use a scheme that does not send the password with each request",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa8-security-misconfiguration/"
+    },
+    {
+      "id": "object-id-review",
+      "severity": "warning",
+      "check": 1,
+      "category": {
+        "id": "API1:2023",
+        "name": "Broken Object Level Authorization"
+      },
+      "pointer": "#/paths/~1parcels~1{parcelId}/delete",
+      "line": 54,
+      "operation": "DELETE /parcels/{parcelId}",
+      "subject": "parcelId",
+      "message": "DELETE /parcels/{parcelId} takes the object identifier {parcelId} in its path, and its security names no scopes. Every endpoint that receives an ID of an object needs a check that the caller may act on that object. The description cannot show that check, so this is something to review, not a finding that the API is vulnerable",
+      "fix": "Check in the server code that the caller may act on this object; use random identifiers; add a test that calls the operation with another caller's identifier",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/"
+    },
+    {
+      "id": "object-id-review",
+      "severity": "warning",
+      "check": 1,
+      "category": {
+        "id": "API1:2023",
+        "name": "Broken Object Level Authorization"
+      },
+      "pointer": "#/paths/~1parcels~1{parcelId}/get",
+      "line": 44,
+      "operation": "GET /parcels/{parcelId}",
+      "subject": "parcelId",
+      "message": "GET /parcels/{parcelId} takes the object identifier {parcelId} in its path, and its security names no scopes. Every endpoint that receives an ID of an object needs a check that the caller may act on that object. The description cannot show that check, so this is something to review, not a finding that the API is vulnerable",
+      "fix": "Check in the server code that the caller may act on this object; use random identifiers; add a test that calls the operation with another caller's identifier",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/"
+    },
+    {
+      "id": "object-id-review",
+      "severity": "warning",
+      "check": 1,
+      "category": {
+        "id": "API1:2023",
+        "name": "Broken Object Level Authorization"
+      },
+      "pointer": "#/paths/~1track~1{code}/get",
+      "line": 90,
+      "operation": "GET /track/{code}",
+      "subject": "code",
+      "message": "GET /track/{code} takes the object identifier {code} in its path, and its security names no scopes. Every endpoint that receives an ID of an object needs a check that the caller may act on that object. The description cannot show that check, so this is something to review, not a finding that the API is vulnerable",
+      "fix": "Check in the server code that the caller may act on this object; use random identifiers; add a test that calls the operation with another caller's identifier",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/"
+    },
+    {
+      "id": "object-id-review",
+      "severity": "warning",
+      "check": 1,
+      "category": {
+        "id": "API1:2023",
+        "name": "Broken Object Level Authorization"
+      },
+      "pointer": "#/paths/~1v2~1parcels~1{parcelId}~1events/get",
+      "line": 61,
+      "operation": "GET /v2/parcels/{parcelId}/events",
+      "subject": "parcelId",
+      "message": "GET /v2/parcels/{parcelId}/events takes the object identifier {parcelId} in its path, and its security names no scopes. Every endpoint that receives an ID of an object needs a check that the caller may act on that object. The description cannot show that check, so this is something to review, not a finding that the API is vulnerable",
+      "fix": "Check in the server code that the caller may act on this object; use random identifiers; add a test that calls the operation with another caller's identifier",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/"
+    },
+    {
+      "id": "security-disabled",
+      "severity": "warning",
+      "check": 2,
+      "category": {
+        "id": "API2:2023",
+        "name": "Broken Authentication"
+      },
+      "pointer": "#/paths/~1status/get/security",
+      "line": 109,
+      "operation": "GET /status",
+      "subject": "GET /status",
+      "message": "GET /status sets an empty security array, so anyone can call it. If that is meant, mark the operation with x-public: true; the tool then reads it as public on purpose",
+      "fix": "Give the operation a security requirement, or add x-public: true next to the empty array",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa2-broken-authentication/"
+    },
+    {
+      "id": "mass-assignment-open",
+      "severity": "warning",
+      "check": 3,
+      "category": {
+        "id": "API3:2023",
+        "name": "Broken Object Property Level Authorization"
+      },
+      "pointer": "#/components/schemas/Parcel",
+      "line": 130,
+      "operation": "POST /parcels",
+      "subject": "object",
+      "message": "An object that a client sends (first reached from POST /parcels) accepts properties that it does not list: additionalProperties is not set. If the server binds the whole body to an object, a client can set properties it was never meant to set",
+      "fix": "Set additionalProperties: false, and list only the properties a client may write",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa3-broken-object-property-level-authorization/"
+    },
+    {
+      "id": "readonly-in-request",
+      "severity": "warning",
+      "check": 3,
+      "category": {
+        "id": "API3:2023",
+        "name": "Broken Object Property Level Authorization"
+      },
+      "pointer": "#/components/schemas/Parcel/properties/id",
+      "line": 134,
+      "operation": "POST /parcels",
+      "subject": "id",
+      "message": "The property id is marked readOnly but is part of a schema that a client sends (first reached from POST /parcels). The specification says a readOnly property SHOULD NOT be sent in a request, and a server that binds the body to an object may still accept it",
+      "fix": "Use one schema for the request without the property, and one for the response, or make sure the server ignores it",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa3-broken-object-property-level-authorization/"
+    },
+    {
+      "id": "readonly-in-request",
+      "severity": "warning",
+      "check": 3,
+      "category": {
+        "id": "API3:2023",
+        "name": "Broken Object Property Level Authorization"
+      },
+      "pointer": "#/components/schemas/Parcel/properties/status",
+      "line": 135,
+      "operation": "POST /parcels",
+      "subject": "status",
+      "message": "The property status is marked readOnly but is part of a schema that a client sends (first reached from POST /parcels). The specification says a readOnly property SHOULD NOT be sent in a request, and a server that binds the body to an object may still accept it",
+      "fix": "Use one schema for the request without the property, and one for the response, or make sure the server ignores it",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa3-broken-object-property-level-authorization/"
+    },
+    {
+      "id": "list-without-paging",
+      "severity": "warning",
+      "check": 4,
+      "category": {
+        "id": "API4:2023",
+        "name": "Unrestricted Resource Consumption"
+      },
+      "pointer": "#/paths/~1parcels/get",
+      "line": 15,
+      "operation": "GET /parcels",
+      "subject": "GET /parcels",
+      "message": "GET /parcels returns a list and has no paging parameter, so one request can return every record. OWASP lists \"Number of records per page to return in a single request-response\" among the limits an API needs",
+      "fix": "Add a limit and an offset, or a cursor, with a maximum value",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/"
+    },
+    {
+      "id": "unbounded-array",
+      "severity": "warning",
+      "check": 4,
+      "category": {
+        "id": "API4:2023",
+        "name": "Unrestricted Resource Consumption"
+      },
+      "pointer": "#/components/schemas/Parcel/properties/labels",
+      "line": 137,
+      "operation": "POST /parcels",
+      "subject": "array",
+      "message": "An array that a client sends (first reached from POST /parcels) has no maxItems. OWASP asks for \"maximum number of elements in arrays\" on all incoming payloads",
+      "fix": "Set maxItems",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/"
+    },
+    {
+      "id": "no-rate-limit-response",
+      "severity": "warning",
+      "check": 4,
+      "category": {
+        "id": "API4:2023",
+        "name": "Unrestricted Resource Consumption"
+      },
+      "pointer": "#/paths/~1admin~1parcels~1export/get/responses",
+      "line": 81,
+      "operation": "GET /admin/parcels/export",
+      "subject": "GET /admin/parcels/export",
+      "message": "GET /admin/parcels/export documents no 429 response. OWASP asks for a limit on how often a client can call the API, and a client needs to know what the limit looks like (the tool counts only an explicit 429)",
+      "fix": "Add a 429 response, with the header that tells the client when to retry",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/"
+    },
+    {
+      "id": "no-rate-limit-response",
+      "severity": "warning",
+      "check": 4,
+      "category": {
+        "id": "API4:2023",
+        "name": "Unrestricted Resource Consumption"
+      },
+      "pointer": "#/paths/~1parcels/get/responses",
+      "line": 18,
+      "operation": "GET /parcels",
+      "subject": "GET /parcels",
+      "message": "GET /parcels documents no 429 response. OWASP asks for a limit on how often a client can call the API, and a client needs to know what the limit looks like (the tool counts only an explicit 429)",
+      "fix": "Add a 429 response, with the header that tells the client when to retry",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/"
+    },
+    {
+      "id": "no-rate-limit-response",
+      "severity": "warning",
+      "check": 4,
+      "category": {
+        "id": "API4:2023",
+        "name": "Unrestricted Resource Consumption"
+      },
+      "pointer": "#/paths/~1parcels/post/responses",
+      "line": 32,
+      "operation": "POST /parcels",
+      "subject": "POST /parcels",
+      "message": "POST /parcels documents no 429 response. OWASP asks for a limit on how often a client can call the API, and a client needs to know what the limit looks like (the tool counts only an explicit 429)",
+      "fix": "Add a 429 response, with the header that tells the client when to retry",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/"
+    },
+    {
+      "id": "no-rate-limit-response",
+      "severity": "warning",
+      "check": 4,
+      "category": {
+        "id": "API4:2023",
+        "name": "Unrestricted Resource Consumption"
+      },
+      "pointer": "#/paths/~1parcels~1{parcelId}/delete/responses",
+      "line": 57,
+      "operation": "DELETE /parcels/{parcelId}",
+      "subject": "DELETE /parcels/{parcelId}",
+      "message": "DELETE /parcels/{parcelId} documents no 429 response. OWASP asks for a limit on how often a client can call the API, and a client needs to know what the limit looks like (the tool counts only an explicit 429)",
+      "fix": "Add a 429 response, with the header that tells the client when to retry",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/"
+    },
+    {
+      "id": "no-rate-limit-response",
+      "severity": "warning",
+      "check": 4,
+      "category": {
+        "id": "API4:2023",
+        "name": "Unrestricted Resource Consumption"
+      },
+      "pointer": "#/paths/~1parcels~1{parcelId}/get/responses",
+      "line": 47,
+      "operation": "GET /parcels/{parcelId}",
+      "subject": "GET /parcels/{parcelId}",
+      "message": "GET /parcels/{parcelId} documents no 429 response. OWASP asks for a limit on how often a client can call the API, and a client needs to know what the limit looks like (the tool counts only an explicit 429)",
+      "fix": "Add a 429 response, with the header that tells the client when to retry",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/"
+    },
+    {
+      "id": "admin-same-scopes",
+      "severity": "warning",
+      "check": 5,
+      "category": {
+        "id": "API5:2023",
+        "name": "Broken Function Level Authorization"
+      },
+      "pointer": "#/paths/~1admin~1parcels~1export/get",
+      "line": 78,
+      "operation": "GET /admin/parcels/export",
+      "subject": "GET /admin/parcels/export",
+      "message": "GET /admin/parcels/export looks administrative (its path names admin, internal or manage) but asks for the same security as ordinary operations. OWASP also says not to assume that an endpoint is regular or administrative from its path, so the names are only a hint",
+      "fix": "Give administrative operations their own scope or role in the security requirement, and check it in the server code",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa5-broken-function-level-authorization/"
+    },
+    {
+      "id": "url-input",
+      "severity": "warning",
+      "check": 7,
+      "category": {
+        "id": "API7:2023",
+        "name": "Server Side Request Forgery"
+      },
+      "pointer": "#/components/schemas/Parcel/properties/callbackUrl",
+      "line": 138,
+      "operation": "POST /parcels",
+      "subject": "callbackUrl",
+      "message": "The format uri of callbackUrl says that a client sends a URL (first reached from POST /parcels). If the server fetches it, an attacker can point the server at an address inside the network. OWASP lists webhooks, file fetching from URLs and URL previews as the usual places. The description cannot show whether the server validates the address",
+      "fix": "Accept only addresses from an allow list of origins and schemes, and say so in the description of the field",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa7-server-side-request-forgery/"
+    },
+    {
+      "id": "url-input",
+      "severity": "warning",
+      "check": 7,
+      "category": {
+        "id": "API7:2023",
+        "name": "Server Side Request Forgery"
+      },
+      "pointer": "#/paths/~1track~1{code}/get/parameters/1",
+      "line": 97,
+      "operation": "GET /track/{code}",
+      "subject": "returnUrl",
+      "message": "The name of returnUrl says that a client sends a URL (first reached from GET /track/{code}). If the server fetches it, an attacker can point the server at an address inside the network. OWASP lists webhooks, file fetching from URLs and URL previews as the usual places. The description cannot show whether the server validates the address",
+      "fix": "Accept only addresses from an allow list of origins and schemes, and say so in the description of the field",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa7-server-side-request-forgery/"
+    },
+    {
+      "id": "multiple-versions",
+      "severity": "warning",
+      "check": 9,
+      "category": {
+        "id": "API9:2023",
+        "name": "Improper Inventory Management"
+      },
+      "pointer": "#/paths/~1v2~1parcels~1{parcelId}~1events/get",
+      "line": 61,
+      "operation": null,
+      "subject": "v2",
+      "message": "The description names major version v1 and also v2. Running several versions of an API expands the attack surface, and OWASP asks for a retirement plan for each version",
+      "fix": "Document which versions are in use and when the old one is retired, or split the description by version",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa9-improper-inventory-management/"
+    },
+    {
+      "id": "non-production-server",
+      "severity": "warning",
+      "check": 9,
+      "category": {
+        "id": "API9:2023",
+        "name": "Improper Inventory Management"
+      },
+      "pointer": "#/servers/1/url",
+      "line": 10,
+      "operation": null,
+      "subject": "server",
+      "message": "The server at #/servers/1 is named as a staging, test or development environment, and the description also lists a server that is not. OWASP asks to document the environment of each API host and not to expose non-production deployments",
+      "fix": "Publish a separate description for the non-production environment, or remove the server from this one",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa9-improper-inventory-management/"
+    },
+    {
+      "id": "unbounded-string",
+      "severity": "info",
+      "check": 4,
+      "category": {
+        "id": "API4:2023",
+        "name": "Unrestricted Resource Consumption"
+      },
+      "pointer": "#/components/schemas/Parcel/properties/recipientName",
+      "line": 136,
+      "operation": "POST /parcels",
+      "subject": "string",
+      "message": "A string that a client sends (first reached from POST /parcels) has no maxLength, no enum and no fixed format. OWASP asks for \"maximum length for strings\" on all incoming parameters",
+      "fix": "Set maxLength",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/"
+    },
+    {
+      "id": "unbounded-string",
+      "severity": "info",
+      "check": 4,
+      "category": {
+        "id": "API4:2023",
+        "name": "Unrestricted Resource Consumption"
+      },
+      "pointer": "#/paths/~1parcels~1{parcelId}/parameters/0/schema",
+      "line": 42,
+      "operation": "GET /parcels/{parcelId}",
+      "subject": "string",
+      "message": "A string that a client sends (first reached from GET /parcels/{parcelId}) has no maxLength, no enum and no fixed format. OWASP asks for \"maximum length for strings\" on all incoming parameters",
+      "fix": "Set maxLength",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/"
+    },
+    {
+      "id": "deprecated-operation",
+      "severity": "info",
+      "check": 9,
+      "category": {
+        "id": "API9:2023",
+        "name": "Improper Inventory Management"
+      },
+      "pointer": "#/paths/~1track~1{code}/get/deprecated",
+      "line": 93,
+      "operation": "GET /track/{code}",
+      "subject": "GET /track/{code}",
+      "message": "GET /track/{code} is deprecated but still in the description. An old operation that is still served keeps its attack surface until it is retired",
+      "fix": "Remove the operation when its retirement date has passed, and document the date",
+      "source": "https://owasp.org/API-Security/editions/2023/en/0xa9-improper-inventory-management/"
+    }
+  ],
+  "notes": [
+    "1 operation marked public on purpose (an empty security array with the x-public marker) was not reported as unprotected"
+  ],
+  "counts": {
+    "error": 3,
+    "warning": 20,
+    "info": 3
+  },
+  "gate": {
+    "failOn": "error",
+    "pass": false,
+    "reason": "3 errors"
+  }
+}

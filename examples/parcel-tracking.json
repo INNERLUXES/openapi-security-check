@@ -1,0 +1,143 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Parcel Tracking API",
+    "version": "1.4.0",
+    "description": "A made-up API for tracking parcels. It is wrong on purpose and is used as an example by openapi-security-check."
+  },
+  "servers": [
+    { "url": "https://api.parcel-example.test/v1", "description": "Production" },
+    { "url": "http://staging.parcel-example.test/v1", "description": "Staging" }
+  ],
+  "security": [{ "BearerAuth": [] }],
+  "paths": {
+    "/parcels": {
+      "get": {
+        "operationId": "listParcels",
+        "summary": "List the parcels of the caller",
+        "responses": {
+          "200": {
+            "description": "The parcels",
+            "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Parcel" } } } }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createParcel",
+        "summary": "Register a parcel",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Parcel" } } }
+        },
+        "responses": {
+          "201": {
+            "description": "The parcel",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Parcel" } } }
+          }
+        }
+      }
+    },
+    "/parcels/{parcelId}": {
+      "parameters": [
+        { "name": "parcelId", "in": "path", "required": true, "schema": { "type": "string" } }
+      ],
+      "get": {
+        "operationId": "getParcel",
+        "summary": "Read one parcel",
+        "responses": {
+          "200": {
+            "description": "The parcel",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Parcel" } } }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteParcel",
+        "summary": "Delete one parcel",
+        "responses": { "204": { "description": "Deleted" } }
+      }
+    },
+    "/v2/parcels/{parcelId}/events": {
+      "get": {
+        "operationId": "listParcelEvents",
+        "summary": "List the tracking events of one parcel",
+        "parameters": [
+          { "name": "parcelId", "in": "path", "required": true, "schema": { "type": "string", "maxLength": 36 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 100 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "The events",
+            "content": { "application/json": { "schema": { "type": "array", "items": { "type": "object", "additionalProperties": false, "properties": { "at": { "type": "string", "format": "date-time" }, "place": { "type": "string", "maxLength": 80 } } } } } }
+          },
+          "429": { "description": "Too many requests" }
+        }
+      }
+    },
+    "/admin/parcels/export": {
+      "get": {
+        "operationId": "exportParcels",
+        "summary": "Export every parcel as a file",
+        "responses": {
+          "200": {
+            "description": "The file",
+            "content": { "text/csv": { "schema": { "type": "string", "format": "binary" } } }
+          }
+        }
+      }
+    },
+    "/track/{code}": {
+      "get": {
+        "operationId": "trackByCode",
+        "summary": "Track a parcel by its public code",
+        "deprecated": true,
+        "security": [{ "LegacyKey": [] }, { "BasicAuth": [] }],
+        "parameters": [
+          { "name": "code", "in": "path", "required": true, "schema": { "type": "string", "maxLength": 20 } },
+          { "name": "returnUrl", "in": "query", "schema": { "type": "string", "maxLength": 200 } }
+        ],
+        "responses": {
+          "200": { "description": "The status", "content": { "application/json": { "schema": { "type": "object", "additionalProperties": false, "properties": { "state": { "type": "string", "maxLength": 20 } } } } } },
+          "429": { "description": "Too many requests" }
+        }
+      }
+    },
+    "/status": {
+      "get": {
+        "operationId": "getStatus",
+        "summary": "Service status",
+        "security": [],
+        "responses": { "200": { "description": "Up" }, "429": { "description": "Too many requests" } }
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "getHealth",
+        "summary": "Liveness probe, public on purpose",
+        "security": [],
+        "x-public": true,
+        "responses": { "200": { "description": "Up" }, "429": { "description": "Too many requests" } }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": { "type": "http", "scheme": "bearer" },
+      "LegacyKey": { "type": "apiKey", "in": "query", "name": "api_key" },
+      "BasicAuth": { "type": "http", "scheme": "basic" }
+    },
+    "schemas": {
+      "Parcel": {
+        "type": "object",
+        "required": ["recipientName"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "readOnly": true },
+          "status": { "type": "string", "enum": ["registered", "in_transit", "delivered"], "readOnly": true },
+          "recipientName": { "type": "string", "example": "Sample Recipient" },
+          "labels": { "type": "array", "items": { "type": "string", "maxLength": 32 } },
+          "callbackUrl": { "type": "string", "format": "uri", "maxLength": 200 }
+        }
+      }
+    }
+  }
+}
